@@ -1,0 +1,14 @@
+[table]
+
+key = "value1"
+key2 = "value2"
+
+[table.subtable]
+
+key = "another value1"
+
+[array]
+key1 = [1, 2, 3, 4, 5]
+
+[[fruit]]
+name = "Mango"

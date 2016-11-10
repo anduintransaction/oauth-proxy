@@ -1,0 +1,7 @@
+generated
+generated.go
+logs
+dist
+.git
+___oauth-proxy
+vendor

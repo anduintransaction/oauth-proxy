@@ -1,0 +1,17 @@
+package views
+
+import (
+	"gottb.io/goru/view"
+	x "{{.PackagePath}}"
+)
+
+func init() {
+	f, err := VVVPack.Open("{{.Path}}")
+	if err != nil {
+		panic(err)
+	}
+	err = view.Add("{{.Path}}", f, x.{{.VarName}}.GetView())
+	if err != nil {
+		panic(err)
+	}
+}

@@ -1,0 +1,11 @@
+package check
+
+import (
+	{{range $k, $v := .Imports}}
+	{{$v}} "{{$k}}"
+	{{end}}
+)
+
+{{range $k, $v := .Funcs}}
+var fff_{{$k}} {{$v}}
+{{end}}

@@ -1,0 +1,15 @@
+# This is main configuration file
+
+[general]
+
+secret = "{{.Secret}}"
+
+[log]
+type = "console"
+level = "INFO"
+format = "%l\t%d %t\t%f\t%s"
+trace = false
+
+# type = "rolling"
+# file = "logs/app.log"
+# period = "day"

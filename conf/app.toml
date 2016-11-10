@@ -1,0 +1,33 @@
+# This is main configuration file
+
+[general]
+
+secret = "Your secret key"
+
+[log]
+type = "console"
+level = "DEBUG"
+format = "%l\t%d %t\t%f\t%s"
+trace = false
+
+# type = "rolling"
+# file = "logs/app.log"
+# period = "day"
+
+[oauth]
+provider = "github"
+client_id = "CLIENT ID"
+client_secret = "CLIENT SECRET"
+callback_uri = "http://your.server/oauth2/callback"
+
+state_timeout = 3600
+cookie_timeout = 2592000
+cookie_name = "oauth-proxy"
+check_version = false
+
+[[proxy]]
+scheme = "http"
+request_host = "proxy.your.server"
+end_point = "http://localhost:8080"
+organizations = ["your org"]
+teams = ["your team"]

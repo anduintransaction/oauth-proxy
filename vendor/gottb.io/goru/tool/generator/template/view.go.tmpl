@@ -1,0 +1,33 @@
+package {{.PkgName}}
+
+import (
+	"gottb.io/goru/view"
+	"gottb.io/goru/view/template"
+	{{range $k, $v := .Imports}}
+	{{$k}} "{{$v}}"
+	{{end}}
+)
+
+type {{.TypeName}} struct {
+	v *view.View
+}
+
+func (v *{{.TypeName}}) GetView() *view.View {
+	return v.v
+}
+
+var {{.VarName}} = &{{.TypeName}}{
+	v: view.NewView(
+		"{{.Path}}",
+		[]*template.Arg{
+		{{range .Args}}
+			{{printf "%#v" .}},
+		{{end}}
+		},
+		{{printf "%#v" .Imports}},
+	),
+}
+
+func (v *{{.TypeName}}) Render({{.Declaration}}) ([]byte, error) {
+	return v.v.Render({{.Call}})
+}

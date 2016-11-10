@@ -1,0 +1,11 @@
+package check
+
+import (
+	{{range $k, $v := .Imports}}
+	{{$k}} "{{$v}}"
+	{{end}}
+)
+
+{{range .Args}}
+var {{.Name}} {{.Type}}
+{{end}}

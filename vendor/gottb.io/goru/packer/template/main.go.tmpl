@@ -1,0 +1,15 @@
+package {{.PackageName}}
+{{$useImport := .UseImport}}
+import (
+	{{if $useImport}}"gottb.io/goru/packer"{{end}}
+)
+
+var data = []byte({{printf "%#v" .Data}})
+
+// VVVPack is archived variable for '{{.Root}}'
+var VVVPack = {{if $useImport}}packer.{{end}}NewPack(data, []byte({{printf "%#v" .Files}}), {{printf "%#v" .Root}}, {{printf "%#v" .Dev}})
+
+// Get returns packer object for '{{.Root}}'
+func Get() *{{if $useImport}}packer.{{end}}Pack {
+	return VVVPack
+}

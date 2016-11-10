@@ -1,0 +1,34 @@
+//go:generate goru generate asset public
+//go:generate goru generate view
+package main
+
+import (
+	"gottb.io/goru"
+	"gottb.io/goru/crypto"
+	"gottb.io/goru/handlers"
+	"gottb.io/goru/log"
+	"gottb.io/goru/session"
+	"gottb.io/goru/packer"
+
+	"{{.PublicPkg}}"
+)
+
+func main() {
+	r := goru.NewRouter()
+	r.Get("/assets/*file", &handlers.Assets{
+		Name: "file",
+		Packs: map[string]*packer.Pack{
+			"public": public.Get(),
+		},
+	})
+	r.Get("/", goru.HandlerFunc(func(c *goru.Context) {
+		goru.Ok(c, []byte("Hello goru"))
+	}))
+
+	goru.StartWith(log.Start)
+	goru.StartWith(crypto.Start)
+	goru.StartWith(session.Start)
+
+	goru.StopWith(log.Stop)
+	goru.Run(r)
+}
