@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"net/http/httputil"
 	"net/url"
+	"strings"
 	"time"
 
 	"github.com/anduintransaction/oauth-proxy/utils"
@@ -17,6 +18,7 @@ type Proxy struct {
 	RedirectURI   string   `config:"redirect_uri"`
 	RequestHost   string   `config:"request_host"`
 	EndPoint      string   `config:"end_point"`
+	PreserveHost  bool     `config:"preserve_host"`
 	ClientID      string   `config:"client_id"`
 	ClientSecret  string   `config:"client_secret"`
 	CallbackURI   string   `config:"callback_uri"`
@@ -41,7 +43,41 @@ func (p *Proxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 func (p *Proxy) createReverseProxy() {
-	p.reverseProxy = httputil.NewSingleHostReverseProxy(p.target)
+	p.reverseProxy = &httputil.ReverseProxy{
+		Director: p.transformRequest,
+	}
+}
+
+func (p *Proxy) transformRequest(req *http.Request) {
+	req.URL.Scheme = p.target.Scheme
+	req.URL.Host = p.target.Host
+	req.URL.Path = p.singleJoiningSlash(p.target.Path, req.URL.Path)
+	targetQuery := p.target.RawQuery
+	if targetQuery == "" || req.URL.RawQuery == "" {
+		req.URL.RawQuery = targetQuery + req.URL.RawQuery
+	} else {
+		req.URL.RawQuery = targetQuery + "&" + req.URL.RawQuery
+	}
+	if _, ok := req.Header["User-Agent"]; !ok {
+		// explicitly disable User-Agent so it's not set to default value
+		req.Header.Set("User-Agent", "")
+	}
+	if !p.PreserveHost {
+		req.Header.Set("Host", p.target.Host)
+		req.Host = p.target.Host
+	}
+}
+
+func (p *Proxy) singleJoiningSlash(a, b string) string {
+	aslash := strings.HasSuffix(a, "/")
+	bslash := strings.HasPrefix(b, "/")
+	switch {
+	case aslash && bslash:
+		return a + b[1:]
+	case !aslash && !bslash:
+		return a + "/" + b
+	}
+	return a + b
 }
 
 var Config struct {
