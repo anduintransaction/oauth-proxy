@@ -85,6 +85,7 @@ func (m *stateMap) acquire(name string) *State {
 }
 
 func (m *stateMap) getUnsafe(name string) *State {
+	log.Debugf("Getting state %s", name)
 	state := m.white[name]
 	if state != nil {
 		log.Debugf("State found from white: %s to %s", name, state.Request.URL.String())

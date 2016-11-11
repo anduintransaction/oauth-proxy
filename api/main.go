@@ -5,7 +5,9 @@ import (
 
 	"github.com/anduintransaction/oauth-proxy/proxy"
 	"github.com/anduintransaction/oauth-proxy/service"
+	"github.com/anduintransaction/oauth-proxy/views"
 	"gottb.io/goru"
+	"gottb.io/goru/log"
 	"gottb.io/gorux"
 )
 
@@ -20,7 +22,12 @@ func Main(ctx *goru.Context) {
 		service.ReverseProxy(ctx, p, user)
 		return
 	}
-	service.DoRedirect(ctx, p)
+	content, err := views.Index.Render(ctx.Request.URL.String())
+	if err != nil {
+		log.Error(err)
+		gorux.ResponseJSON(ctx, http.StatusInternalServerError, InternalServerError)
+	}
+	goru.Unauthorized(ctx, content)
 }
 
 func Favicon(ctx *goru.Context) {

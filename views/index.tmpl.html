@@ -1,0 +1,36 @@
+//func(requestPath string)
+<!DOCTYPE HTML>
+<html>
+    <head>
+        <meta charset="utf8">
+        <title>Anduin Anthentication</title>
+        {{css "https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"}}
+        {{css "https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css"}}
+        <style>
+            .container {
+                padding-top: 200px;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6 col-md-offset-3">
+                    <div class="panel panel-default">
+                        <div class="panel-body">
+                            <h3 class="text-center">Welcome!</h3>
+                            <h6 class="text-center">Please login to continue</h6>
+                            <form action="/oauth2/begin">
+                                <input type="hidden" name="request-path" value="{{$requestPath}}">
+                                <button type="submit" class="btn btn-success btn-lg btn-block">
+                                    <i class="fa fa-github" aria-hidden="true"></i>
+                                    Login with Github
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>

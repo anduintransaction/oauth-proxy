@@ -18,16 +18,16 @@ import (
 func Login(ctx *goru.Context) {
 	stateName := gorux.Query(ctx, "state")
 	if stateName == "" {
-		gorux.ResponseJSON(ctx, http.StatusBadRequest, Error("state is required"))
+		RenderError(ctx, "State is required")
 		return
 	}
 	state := proxy.AcquireState(stateName)
 	if state == nil {
-		gorux.ResponseJSON(ctx, http.StatusUnauthorized, Error("state not found or expired"))
+		RenderError(ctx, "State not found or expired")
 		return
 	}
 	if state.User == nil {
-		gorux.ResponseJSON(ctx, http.StatusUnauthorized, Error("user was not authenticated"))
+		RenderError(ctx, "User was not authenticated")
 		return
 	}
 	session := &proxy.Session{
@@ -37,13 +37,13 @@ func Login(ctx *goru.Context) {
 	cookieContent, err := json.Marshal(session)
 	if err != nil {
 		log.Error(errors.Wrap(err))
-		gorux.ResponseJSON(ctx, http.StatusInternalServerError, InternalServerError)
+		RenderError(ctx, InternalServerError.Message)
 		return
 	}
 	encryptedContent, err := crypto.Encrypt(cookieContent)
 	if err != nil {
 		log.Error(err)
-		gorux.ResponseJSON(ctx, http.StatusInternalServerError, InternalServerError)
+		RenderError(ctx, InternalServerError.Message)
 		return
 	}
 	goru.SetCookie(ctx, &http.Cookie{
