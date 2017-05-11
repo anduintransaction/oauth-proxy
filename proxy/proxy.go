@@ -8,9 +8,17 @@ import (
 	"strings"
 	"time"
 
+	"regexp"
+
 	"github.com/anduintransaction/oauth-proxy/utils"
 	"gottb.io/goru/config"
+	"gottb.io/goru/log"
 )
+
+type whilelist struct {
+	method string
+	path   *regexp.Regexp
+}
 
 type Proxy struct {
 	Provider      string   `config:"provider"`
@@ -24,9 +32,11 @@ type Proxy struct {
 	CallbackURI   string   `config:"callback_uri"`
 	Organizations []string `config:"organizations"`
 	Teams         []string `config:"teams"`
+	Whitelists    []string `config:"whitelists"`
 	organizations utils.StringSet
 	teams         utils.StringSet
 	target        *url.URL
+	whitelists    []*whilelist
 	reverseProxy  *httputil.ReverseProxy
 }
 
@@ -40,6 +50,23 @@ func (p *Proxy) HasTeam(team string) bool {
 
 func (p *Proxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	p.reverseProxy.ServeHTTP(w, r)
+}
+
+func (p *Proxy) IsWhiteList(method, path string) bool {
+	for _, w := range p.whitelists {
+		if w.method != "ANY" && w.method != method {
+			continue
+		}
+		path = strings.TrimRight(path, "/")
+		if path == "" {
+			path = "/"
+		}
+		matched := w.path.MatchString(path)
+		if matched {
+			return true
+		}
+	}
+	return false
 }
 
 func (p *Proxy) createReverseProxy() {
@@ -133,8 +160,25 @@ func Start(config *config.Config) error {
 		if err != nil {
 			return err
 		}
+		proxy.whitelists = []*whilelist{}
+		for _, wl := range proxy.Whitelists {
+			w := &whilelist{}
+			pieces := strings.SplitN(wl, ":", 2)
+			if len(pieces) == 1 {
+				w.method = "ANY"
+				w.path, err = regexp.Compile("^" + pieces[0] + "$")
+			} else {
+				w.method = strings.ToUpper(pieces[0])
+				w.path, err = regexp.Compile("^" + pieces[1] + "$")
+			}
+			if err != nil {
+				return err
+			}
+			proxy.whitelists = append(proxy.whitelists, w)
+		}
 		proxy.createReverseProxy()
 		proxyMap[proxy.RequestHost] = proxy
+		log.Debug(proxy)
 	}
 
 	rand.Seed(time.Now().UnixNano())

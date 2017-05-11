@@ -30,6 +30,10 @@ func DoRedirect(ctx *goru.Context, prox *proxy.Proxy) {
 	goru.Redirect(ctx, redirectURI)
 }
 
+func CheckWhitelist(ctx *goru.Context, prox *proxy.Proxy) bool {
+	return prox.IsWhiteList(ctx.Request.Method, ctx.Request.URL.Path)
+}
+
 func CheckSession(ctx *goru.Context) *proxy.UserInfo {
 	authCookie, err := ctx.Request.Cookie(proxy.Config.CookieName)
 	if err != nil {
@@ -61,8 +65,10 @@ func CheckSession(ctx *goru.Context) *proxy.UserInfo {
 }
 
 func ReverseProxy(ctx *goru.Context, prox *proxy.Proxy, user *proxy.UserInfo) {
-	ctx.Request.Header.Add("X-Forwarded-User", user.Name)
-	ctx.Request.Header.Add("X-Forwarded-Email", user.Email)
+	if user != nil {
+		ctx.Request.Header.Add("X-Forwarded-User", user.Name)
+		ctx.Request.Header.Add("X-Forwarded-Email", user.Email)
+	}
 	log.Debugf("Reverse proxy for %s to %s", prox.RequestHost, ctx.Request.URL.String())
 	prox.ServeHTTP(ctx.ResponseWriter, ctx.Request)
 }

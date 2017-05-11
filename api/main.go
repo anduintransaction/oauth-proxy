@@ -17,6 +17,10 @@ func Main(ctx *goru.Context) {
 		gorux.ResponseJSON(ctx, http.StatusOK, Error("Anduin OAUTH proxy version "+service.Version()))
 		return
 	}
+	if service.CheckWhitelist(ctx, p) {
+		service.ReverseProxy(ctx, p, nil)
+		return
+	}
 	user := service.CheckSession(ctx)
 	if user != nil {
 		service.ReverseProxy(ctx, p, user)

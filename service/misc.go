@@ -6,7 +6,7 @@ import (
 )
 
 func Version() string {
-	return "0.3.0"
+	return "0.4.0"
 }
 
 func generateRandomState() (string, error) {
