@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-RELEASE=0.3.0
+RELEASE=0.4.0
 dist=dist
 bin=oauth-proxy
 
