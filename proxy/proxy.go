@@ -1,6 +1,7 @@
 package proxy
 
 import (
+	"crypto/tls"
 	"math/rand"
 	"net/http"
 	"net/http/httputil"
@@ -70,8 +71,11 @@ func (p *Proxy) IsWhiteList(method, path string) bool {
 }
 
 func (p *Proxy) createReverseProxy() {
+	transport := http.DefaultTransport.(*http.Transport)
+	transport.TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
 	p.reverseProxy = &httputil.ReverseProxy{
-		Director: p.transformRequest,
+		Director:  p.transformRequest,
+		Transport: transport,
 	}
 }
 
